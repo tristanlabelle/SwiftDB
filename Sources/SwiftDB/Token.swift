@@ -1,7 +1,9 @@
 enum Token: Hashable {
+    case closeParen
+    case comma
     case keyword(Keyword)
     case identifier(String)
-    case comma
+    case openParen
     case semicolon
     case star
 }
@@ -15,17 +17,20 @@ enum Keyword: String, Hashable, CaseIterable {
     case create
     case database
     case delete
+    case drop
     case exists
     case group
     case from
     case insert
     case `if`
     case `is`
+    case key
     case like
     case not
     case null
     case or
     case order
+    case primary
     case select
     case set
     case table

@@ -1,6 +1,9 @@
 fileprivate let singleCharTokens: [Character: Token] = [
     ",": .comma,
-    "*": .star
+    "*": .star,
+    ";": .semicolon,
+    "(": .openParen,
+    ")": .closeParen
 ]
 
 func nextToken(_ stream: inout CharStream) -> Token? {

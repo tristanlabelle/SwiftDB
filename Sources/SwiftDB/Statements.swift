@@ -22,7 +22,7 @@ enum ColumnType: Hashable {
     case bool
     case char(_ size: Int)
     case int
-    case varchar(_ size: Int)
+    case varchar(_ size: Int?)
 }
 
 enum Expression: Hashable {
