@@ -10,7 +10,7 @@ final class ParserTests: XCTestCase {
                 .keyword(.from),
                 .identifier("mytable")
                 ]),
-            .select(columns: .all, table: "mytable"))
+            .select(columns: nil, from: "mytable"))
 
         XCTAssertEqual(
             try SwiftDB.parseStatement(tokens: [
@@ -19,7 +19,7 @@ final class ParserTests: XCTestCase {
                 .keyword(.from),
                 .identifier("mytable")
                 ]),
-            .select(columns: .some(["mycolumn"]), table: "mytable"))
+            .select(columns: ["mycolumn"], from: "mytable"))
 
         XCTAssertEqual(
             try SwiftDB.parseStatement(tokens: [
@@ -30,6 +30,6 @@ final class ParserTests: XCTestCase {
                 .keyword(.from),
                 .identifier("mytable")
                 ]),
-            .select(columns: .some(["column1", "column2"]), table: "mytable"))
+            .select(columns: ["column1", "column2"], from: "mytable"))
     }
 }
