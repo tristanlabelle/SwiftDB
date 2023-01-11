@@ -22,18 +22,18 @@ fileprivate struct Parser {
         let columns = try parseColumnList()
         try tokens.consume(.keyword(.from))
         let tableName = try tokens.consumeIdentifier()
-        return .select(columns: columns, table: tableName)
+        return .select(columns: columns, from: tableName)
     }
 
-    private mutating func parseColumnList() throws -> ColumnList {
+    private mutating func parseColumnList() throws -> [String]? {
         if tokens.tryConsume(.star) {
-            return .all
+            return nil
         }
         
         var columnNames = [ try tokens.consumeIdentifier() ]
         while tokens.tryConsume(.comma) {
             columnNames.append(try tokens.consumeIdentifier())
         }
-        return .some(columnNames)
+        return columnNames
     }
 }
