@@ -6,7 +6,7 @@ enum Token: Hashable {
     case star
 }
 
-enum Keyword: Hashable {
+enum Keyword: String, Hashable {
     case create
     case from
     case insert

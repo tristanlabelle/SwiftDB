@@ -1,6 +1,6 @@
 // A token iterator which supports peeking
 struct TokenStream {
-    var current: Token?
+    private(set) var current: Token?
     private var rest: any IteratorProtocol<Token>
 
     init(_ tokens: some Sequence<Token>) {

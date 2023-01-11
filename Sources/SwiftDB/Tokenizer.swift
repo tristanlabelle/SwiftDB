@@ -1,13 +1,38 @@
+fileprivate let singleCharTokens: [Character: Token] = [
+    ",": .comma,
+    "*": .star
+]
 
+func nextToken(_ stream: inout CharStream) -> Token? {
+    stream.skipWhile { $0.isWhitespace }
 
-// func nextToken(substring: Substring) -> Optional<Token> {
-//     if substring.isEmpty {
-//         return nil
-//     }
+    guard let c = stream.current else {
+        return nil
+    }
 
-//     var length = 0;
-// }
+    if let token = singleCharTokens[c] {
+        stream.consume()
+        return token
+    }
 
-fileprivate func isLetter(_ c : Character) -> Bool {
-    return (c >= "a" && c <= "z") || (c >= "A" && c <= "Z");
+    if c.isLetter {
+        let identifier = stream.consumeWhile { $0.isLetter }!
+        if let keyword = Keyword(rawValue: identifier.lowercased()) {
+            return .keyword(keyword)
+        }
+        else {
+            return .identifier(identifier)
+        }
+    }
+
+    return nil
+}
+
+func tokenize(_ str: String) -> [Token] {
+    var stream = CharStream(str)
+    var result: [Token] = []
+    while let token = nextToken(&stream) {
+        result.append(token)
+    }
+    return result
 }
