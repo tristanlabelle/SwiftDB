@@ -52,4 +52,13 @@ final class ParserTests: XCTestCase {
             try SwiftDB.parseStatement(tokens: [ .keyword(.drop), .keyword(.table), .identifier("mytable") ]),
             .drop(table: "mytable"))
     }
+
+    func testInsertInto() throws {
+        XCTAssertEqual(
+            try SwiftDB.parseStatement(tokens: [
+                .keyword(.insert), .keyword(.into), .identifier("mytable"),
+                .openParen, .identifier("mycolumn"), .closeParen,
+                .keyword(.values), .openParen, .singleQuotedString("myvalue"), .closeParen ]),
+            .insert(into: "mytable", columns: ["mycolumn"], values: [Expression.stringLiteral("myvalue")]))
+    }
 }

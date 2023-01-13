@@ -18,6 +18,13 @@ func nextToken(_ stream: inout CharStream) -> Token? {
         return token
     }
 
+    if c == "'" {
+        stream.consume()
+        let str = stream.consumeWhile { $0 != "\'" } ?? ""
+        stream.consume()
+        return .singleQuotedString(str)
+    }
+
     if c.isLetter {
         let identifier = stream.consumeWhile { $0.isLetter }!
         if let keyword = Keyword(rawValue: identifier.lowercased()) {

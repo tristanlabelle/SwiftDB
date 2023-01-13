@@ -3,16 +3,16 @@ struct TokenStream {
     private(set) var current: Token?
     private var rest: any IteratorProtocol<Token>
 
+    var currentOrThrow: Token {
+        get throws {
+            if let current { return current }
+            throw ParseError.unexpectedEndOfFile
+        }
+    }
+
     init(_ tokens: some Sequence<Token>) {
         self.rest = tokens.makeIterator()
         self.current = rest.next()
-    }
-
-    func currentOrThrow() throws -> Token {
-        if let current {
-            return current
-        }
-        throw ParseError.unexpectedEndOfFile
     }
 
     mutating func tryConsume(_ expected: Token) -> Bool {
@@ -30,8 +30,8 @@ struct TokenStream {
         current = rest.next()
     }
 
-    mutating func consume() throws -> Token {
-        let result = try currentOrThrow()
+    @discardableResult mutating func consume() -> Token {
+        let result = current!
         current = rest.next()
         return result
     }

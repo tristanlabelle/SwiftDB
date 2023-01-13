@@ -1,0 +1,3 @@
+import SwiftDB
+
+runRepl()

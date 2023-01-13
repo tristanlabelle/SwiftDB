@@ -4,6 +4,7 @@ enum Token: Hashable {
     case keyword(Keyword)
     case identifier(String)
     case openParen
+    case singleQuotedString(String)
     case semicolon
     case star
 }
@@ -22,6 +23,7 @@ enum Keyword: String, Hashable, CaseIterable {
     case group
     case from
     case insert
+    case into
     case `if`
     case `is`
     case key

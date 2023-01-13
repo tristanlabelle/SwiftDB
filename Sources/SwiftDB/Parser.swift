@@ -1,3 +1,7 @@
+func parseStatement(str: String) throws -> Statement {
+    try parseStatement(tokens: tokenize(str))
+}
+
 func parseStatement(tokens: some Sequence<Token>) throws -> Statement {
     var parser = Parser(TokenStream(tokens))
     return try parser.parseStatement()
@@ -14,6 +18,7 @@ fileprivate struct Parser {
         switch tokens.current {
             case .keyword(.create): return try parseCreateStatement()
             case .keyword(.drop): return try parseDropStatement()
+            case .keyword(.insert): return try parseInsertStatement()
             case .keyword(.select): return try parseSelectStatement()
             default: throw ParseError.unexpectedToken
         }
@@ -30,14 +35,7 @@ fileprivate struct Parser {
             try tokens.consume(.keyword(.exists))
         }
 
-        var columns: [ColumnDefinition] = []
-        try tokens.consume(.openParen)
-        while !tokens.tryConsume(.closeParen) {
-            if !columns.isEmpty {
-                try tokens.consume(.comma)
-            }
-            columns.append(try parseColumnDefinition())
-        }
+        let columns = try parseParenthesizedList { try $0.parseColumnDefinition() }
 
         return .create(table: tableName, ifNotExists: ifNotExists, columns: columns)
     }
@@ -75,6 +73,34 @@ fileprivate struct Parser {
         }
     }
 
+    private mutating func parseInsertStatement() throws -> Statement {
+        try tokens.consume(.keyword(.insert))
+        try tokens.consume(.keyword(.into))
+        let tableName = try tokens.consumeIdentifier()
+
+        let columnNames = tokens.current == Token.openParen
+            ? try parseParenthesizedList { try $0.tokens.consumeIdentifier() }
+            : nil
+
+        try tokens.consume(.keyword(.values))
+        let values = try parseParenthesizedList { try $0.parseExpression() }
+
+        return .insert(into: tableName, columns: columnNames, values: values)
+    }
+
+    private mutating func parseParenthesizedList<T>(parseItem: (inout Parser) throws -> T) throws -> [T] {
+        var items: [T] = []
+        try tokens.consume(.openParen)
+        while !tokens.tryConsume(.closeParen) {
+            if !items.isEmpty {
+                try tokens.consume(.comma)
+            }
+            items.append(try parseItem(&self))
+        }
+
+        return items
+    }
+
     private mutating func parseSelectStatement() throws -> Statement {
         try tokens.consume(.keyword(.select))
         let columns = try parseColumnList()
@@ -93,5 +119,16 @@ fileprivate struct Parser {
             columnNames.append(try tokens.consumeIdentifier())
         }
         return columnNames
+    }
+    
+    private mutating func parseExpression() throws -> Expression {
+        switch try tokens.currentOrThrow {
+            case Token.singleQuotedString(let str):
+                tokens.consume()
+                return .stringLiteral(str)
+
+            default:
+            fatalError("Not implemented")
+        }
     }
 }

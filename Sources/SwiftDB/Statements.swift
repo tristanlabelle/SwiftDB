@@ -26,5 +26,5 @@ enum ColumnType: Hashable {
 }
 
 enum Expression: Hashable {
-    case literalString(_ value: String)
+    case stringLiteral(_ value: String)
 }
