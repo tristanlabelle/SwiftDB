@@ -21,13 +21,13 @@ struct CharStream {
         current != nil && predicate(current!) ? consume() : nil
     }
 
-    mutating func consumeWhile(_ predicate: (Character) -> Bool) -> String? {
+    mutating func consumeWhile(_ predicate: (Character) -> Bool) -> String {
         var result = ""
         while let c = consumeIf(predicate) {
             result.append(c)
         }
         
-        return result.isEmpty ? nil : result
+        return result
     }
     
     @discardableResult mutating func consume() -> Character {

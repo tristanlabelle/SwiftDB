@@ -27,4 +27,5 @@ enum ColumnType: Hashable {
 
 enum Expression: Hashable {
     case stringLiteral(_ value: String)
+    case integerLiteral(_ value: Int64)
 }

@@ -123,12 +123,15 @@ fileprivate struct Parser {
     
     private mutating func parseExpression() throws -> Expression {
         switch try tokens.currentOrThrow {
-            case Token.singleQuotedString(let str):
+            case .singleQuotedString(let str):
                 tokens.consume()
                 return .stringLiteral(str)
 
-            default:
-            fatalError("Not implemented")
+            case .integer(let value):
+                tokens.consume()
+                return .integerLiteral(value)
+
+            default: fatalError("Not implemented")
         }
     }
 }

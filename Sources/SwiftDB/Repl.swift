@@ -8,7 +8,9 @@ public func runRepl() {
 
         do {
             let statement = try parseStatement(str: line)
-            try database.execute(statement)
+            if let result = try database.execute(statement) {
+                print("\(result.rows.count) rows")
+            }
         }
         catch let error as ParseError {
             print(error)
