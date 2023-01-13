@@ -3,6 +3,7 @@ enum Token: Hashable {
     case comma
     case keyword(Keyword)
     case identifier(String)
+    case integer(Int64)
     case openParen
     case singleQuotedString(String)
     case semicolon
