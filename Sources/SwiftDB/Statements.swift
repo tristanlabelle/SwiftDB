@@ -1,16 +1,16 @@
 enum Statement: Hashable {
-    case create(table: String, ifNotExists: Bool, columns: [ColumnDefinition])
-    case delete(from: String, condition: [Expression])
+    case create(table: String, ifNotExists: Bool = false, columns: [ColumnDefinition])
+    case delete(from: String, where: Expression? = nil)
     case drop(table: String)
-    case insert(into: String, columns: [String]?, values: [Expression])
-    case update(_: String, set: [ColumnAssignment])
-    case select(columns: [String]?, from: String)
+    case insert(into: String, columns: [String]? = nil, values: [Expression])
+    case update(_: String, set: [ColumnAssignment], where: Expression? = nil)
+    case select(columns: [String]? = nil, from: String, where: Expression? = nil)
 }
 
 struct ColumnDefinition: Hashable {
     var name: String
     var type: ColumnType
-    var primaryKey: Bool
+    var primaryKey: Bool = false
 }
 
 struct ColumnAssignment: Hashable {

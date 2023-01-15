@@ -47,6 +47,12 @@ final class ParserTests: XCTestCase {
             ]))
     }
 
+    func testDelete() throws {
+        XCTAssertEqual(
+            try SwiftDB.parseStatement(tokens: [ .keyword(.delete), .keyword(.from), .identifier("mytable") ]),
+            .delete(from: "mytable"))
+    }
+
     func testDropTable() throws {
         XCTAssertEqual(
             try SwiftDB.parseStatement(tokens: [ .keyword(.drop), .keyword(.table), .identifier("mytable") ]),

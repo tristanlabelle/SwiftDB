@@ -17,6 +17,7 @@ fileprivate struct Parser {
     mutating func parseStatement() throws -> Statement {
         switch tokens.current {
             case .keyword(.create): return try parseCreateStatement()
+            case .keyword(.delete): return try parseDeleteStatement()
             case .keyword(.drop): return try parseDropStatement()
             case .keyword(.insert): return try parseInsertStatement()
             case .keyword(.select): return try parseSelectStatement()
@@ -38,6 +39,17 @@ fileprivate struct Parser {
         let columns = try parseParenthesizedList { try $0.parseColumnDefinition() }
 
         return .create(table: tableName, ifNotExists: ifNotExists, columns: columns)
+    }
+
+    private mutating func parseDeleteStatement() throws -> Statement {
+        try tokens.consume(.keyword(.delete))
+        try tokens.consume(.keyword(.from))
+        let tableName = try tokens.consumeIdentifier()
+
+        let condition: Expression? = tokens.tryConsume(.keyword(.where))
+            ? try parseExpression() : nil
+
+        return .delete(from: tableName, where: condition)
     }
 
     private mutating func parseDropStatement() throws -> Statement {

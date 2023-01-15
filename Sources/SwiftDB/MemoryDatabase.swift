@@ -6,14 +6,17 @@ class MemoryDatabase {
             case .create(let table, let ifNotExists, let columns):
                 try create(table: table, ifNotExists: ifNotExists, columns: columns)
                 return nil
+            case .delete(let table, let condition):
+                try delete(from: table, where: condition)
+                return nil
             case .drop(let table):
                 try drop(table: table)
                 return nil
             case .insert(let table, let columns, let values):
                 try insert(into: table, columns: columns, values: values)
                 return nil
-            case .select(let columns, let table):
-                return try select(columns: columns, from: table)
+            case .select(let columns, let table, let condition):
+                return try select(columns: columns, from: table, where: condition)
             default:
                 fatalError("Not implemented")
         }
@@ -31,15 +34,28 @@ class MemoryDatabase {
         tables[nameKey] = MemoryTable(name: nameKey, columns: columns)
     }
 
+    func delete(from tableName: String, where condition: Expression? = nil) throws {
+        guard let table = tables[tableName.lowercased()] else {
+            throw QueryError.noSuchTable(tableName)
+        }
+
+        if condition == nil {
+            return try table.deleteRows(where: { _ in true })
+        }
+        else {
+            fatalError("Not implemented")
+        }
+    }
+
     func drop(table: String) throws {
         if tables.removeValue(forKey: table.lowercased()) == nil {
             throw QueryError.noSuchTable(table)
         }
     }
 
-    func insert(into: String, columns: [String]?, values: [Expression]) throws {
-        guard let table = tables[into.lowercased()] else {
-            throw QueryError.noSuchTable(into)
+    func insert(into tableName: String, columns: [String]? = nil, values: [Expression]) throws {
+        guard let table = tables[tableName.lowercased()] else {
+            throw QueryError.noSuchTable(tableName)
         }
         
         if columns != nil {
@@ -50,12 +66,12 @@ class MemoryDatabase {
         try table.addRow(row: row)
     }
 
-    func select(columns: [String]?, from: String) throws -> MemoryTable {
-        guard let table = tables[from.lowercased()] else {
-            throw QueryError.noSuchTable(from)
+    func select(columns: [String]? = nil, from tableName: String, where condition: Expression? = nil) throws -> MemoryTable {
+        guard let table = tables[tableName.lowercased()] else {
+            throw QueryError.noSuchTable(tableName)
         }
 
-        if columns == nil {
+        if columns == nil && condition == nil {
             return table.clone(withName: nil)
         }
         else {
@@ -69,30 +85,5 @@ class MemoryDatabase {
             case .integerLiteral(let value): return value.description
             default: fatalError("Not implemented")
         }
-    }
-}
-
-class MemoryTable {
-    private(set) var name: String?
-    private(set) var columns: [ColumnDefinition]
-    private(set) var rows: [[String]] = []
-
-    init(name: String?, columns: [ColumnDefinition]) {
-        self.name = name
-        self.columns = columns
-    }
-
-    func addRow(row: [String]) throws {
-        if row.count != columns.count {
-            throw QueryError.invalidValueCount
-        }
-
-        rows.append(row)
-    }
-
-    func clone(withName: String?) -> MemoryTable {
-        let clone = MemoryTable(name: withName, columns: columns)
-        clone.rows = rows
-        return clone
     }
 }
